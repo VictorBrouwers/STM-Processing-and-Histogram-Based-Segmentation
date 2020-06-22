@@ -19,6 +19,7 @@ class Plot(object):
         plt.show()
         return 0
 
+    #Regular image plot
     def im_plot(self, data, title):
         plt.figure()
         plt.imshow(data)
@@ -26,6 +27,7 @@ class Plot(object):
         plt.show()
         return 0
 
+    #Histogram plot
     def hist_plot(self, data, bins, title):
         # TODO; find way to include proper mean, sd
         hist, bin_edges = np.histogram(data, bins=bins)
@@ -35,6 +37,7 @@ class Plot(object):
         plt.show()
         return 0
 
+    #plots in SkyColormap.npy style
     def sky_plot(self, data, title):
         plt.figure()
         plt.imshow(data, cmap=sky)

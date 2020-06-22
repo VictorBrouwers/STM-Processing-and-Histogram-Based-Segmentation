@@ -12,15 +12,16 @@ from skimage import feature
 from skimage import exposure
 import cv2
 from PIL import Image
+from matplotlib.colors import LinearSegmentedColormap
 
 
 #Imports of self-written code; see different .py files. Must be reloaded if changed
 import ImProcessing
-reload(ImProcessing)
+#reload(ImProcessing)
 import ImAnalysis
-reload(ImAnalysis)
+#reload(ImAnalysis)
 import Plots
-reload(Plots)
+#reload(Plots)
 
 #Initialization of self-written code imports
 ip = ImProcessing.ImageProcessing()
@@ -31,18 +32,18 @@ plot = Plots.Plot()
 #Global
 matrx_data = access2thematrix.MtrxData()
 #InAsBi
-InAsBi = 'images/BEP data Victor/Set 2/InAsBi/default_2018Mar01-090147_STM-STM_Spectroscopy--10_1.Z_mtrx'
+InAsBi = 'images/path/to/data/file_name.extension'
 #GaAsBi
-GaAsBi = 'images/BEP data Victor/default_2019Dec09-090745_STM-STM_Spectroscopy--31_1.Z_mtrx'
+GaAsBi = 'images/path/to/data/file_name.extension'
 #GaAsN
-GaAsN = 'images/BEP data Victor/Set 2/GaAsN/default_2016Jun03-093824_STM-STM_Spectroscopy--9_2.Z_mtrx'
+GaAsN = 'images/path/to/data/file_name.extension'
 #Quantum Dot
-QD = 'images/Bep data Victor/Quantum Dots/default_2020Mar05-091143_STM-STM_Spectroscopy--138_1.Z_mtrx'
+QD = 'images/path/to/data/file_name.extension'
 
 
 ### Beginning ###
 #choose what data is analyzed
-data_file = GaAsN
+data_file = GaAsBi
 
 #order of polynomial fit to rows
 order = 0
@@ -69,35 +70,24 @@ im1, message = matrx_data.select_image(traces[1]) #contains data, width, height,
 im2, message = matrx_data.select_image(traces[2]) #contains data, width, height, y_offset, x_offset, angle and channel_name_and_unit
 im3, message = matrx_data.select_image(traces[3]) #contains data, width, height, y_offset, x_offset, angle and channel_name_and_unit
 Z = im0.data #select first trace
-#Z = cv2.imread(r'C:\Users\s169261\PycharmProjects\Programs\images\BEP data Victor\Quantum dots\default_2020Mar05-091143_STM-STM_Spectroscopy--158_1.png', cv2.IMREAD_GRAYSCALE) #directly from png
-#Z = np.mean(Z, axis=2) #way to make grayscale image, not that precise
 
-# def deskew(img):
-#     m = cv2.moments(img)
-#     if abs(m['mu02']) < 1e-2:
-#         return img.copy()
-#     skew =2.4*m['mu11']/m['mu02']
-#     M = np.float32([[1, skew, -0.5*img.shape[0]*skew], [0, 1, 0]])
-#     img = cv2.warpAffine(img, M, (img.shape[1], img.shape[0]), flags=cv2.WARP_INVERSE_MAP | cv2.INTER_LINEAR)
-#     return img
-#
-# Z_dsk = deskew(Z)
-# plt.imsave(r"C:\Users\s169261\Documents\`BEP\Alessandro\QDs\Deskewed\158.png", Z_dsk)
+#Z = cv2.imread(r'C:\Users\s169261\PycharmProjects\Programs\images\BEP data Victor\Quantum dots\default_2020Mar05-091143_STM-STM_Spectroscopy--138_1.png', cv2.IMREAD_GRAYSCALE) #directly from png
+#Z = np.mean(Z, axis=2) #way to make grayscale image, not that precise
 
 
 #plot.sky_plot(Z, "raw")
 
 #plot.im_plot(Z_dsk, "deskewed")
 #plane leveling 2nd order:
-Z_crop = Z[100:800, 0:800]
+Z_crop = Z[000:800, 130:800]
 Z_sub1 = ip.plane_lvl_order(Z_crop, 1)
 
 
 #plot.sky_plot(Z_sub1, '1st order plane fit')
 
 #subtract mean plane and polynomial fit to rows
-Z_poly1 = ip.poly_row(Z_sub1, order)
-#plot.sky_plot(Z_poly1, "Row align, poly, 1st")
+Z_poly1 = ip.poly_row(Z_sub1, 2)
+plot.sky_plot(Z_poly1, "Row align, poly, 1st")
 
 Z_poly1_corr = ip.plane_lvl_order(Z_poly1, 2)
 
@@ -109,8 +99,10 @@ Z_poly1_corr = ip.plane_lvl_order(Z_poly1, 2)
 # plt.axvline(75, color='g', linestyle='dashed', linewidth=2)
 # plot.hist_plot(Z_poly1_corr, 255, "Z_final")
 
-plot.sky_plot(Z_poly1_corr, "Corrected with second plane level")
-#plt.imsave(r"C:\Users\s169261\Documents\`BEP\Alessandro\Atoms\test\GaAsBi_0.png", Z_poly1_corr)
+# plot.sky_plot(Z_poly1_corr, "Corrected with second plane level")
+# readcm = np.load('SkyColormap.npy',allow_pickle='TRUE').item()  #opens colormap file
+# sky = LinearSegmentedColormap('sky', readcm)                    #for the colormap used in python
+# plt.imsave(r"C:\Users\s169261\Documents\`BEP\Alessandro\Atoms\GaAsN\GaAsN9_2.png", Z_poly1_corr, cmap=sky)
 
 # all_segments, all_segments_cleaned, segm1_closed, segm2_closed, segm3_closed, segm3 = ia.\
 #     hist_segm_man(Z_poly1_corr, 'GaAsBi, regular')
@@ -127,8 +119,8 @@ plot.sky_plot(Z_poly1_corr, "Corrected with second plane level")
 # Z_photoshop = np.mean(Z_photoshop, axis=2) #way to make grayscale image, not that precise
 # plot.gr_plot(Z_photoshop, "photoshopped")
 #
-sharpened_Z = ip.sharpen(Z_poly1_corr)
-edge_Z_poly = sobel(Z_poly1_corr)
+# sharpened_Z = ip.sharpen(Z_poly1_corr)
+# edge_Z_poly = sobel(Z_poly1_corr)
 # plot.gr_plot(edge_Z_poly, "Sobel Edge detection")
 #
 # (H, hogImage) = feature.hog(Z_photoshop, orientations=9, pixels_per_cell=(8, 8),
@@ -146,10 +138,10 @@ edge_Z_poly = sobel(Z_poly1_corr)
 # #hogImage2 = exposure.rescale_intensity(hogImage2, out_range=(0.255))
 # plot.gr_plot(hogImage2, "HOG2")
 
-
-smart_segm, smart_segm_closed, peaks = ia.hist_segm_auto(edge_Z_poly, 0.10, 1000, 1) #gives both cleaned and non-cleaned mask)
-Z_poly_mask1 = np.invert(smart_segm) #method produces negative mask; invert
-label_Z_poly, nb_labels = ndimage.label(Z_poly_mask1)
+#
+# smart_segm, smart_segm_closed, peaks = ia.hist_segm_auto(edge_Z_poly, 0.10, 1000, 1) #gives both cleaned and non-cleaned mask)
+# Z_poly_mask1 = np.invert(smart_segm) #method produces negative mask; invert
+# label_Z_poly, nb_labels = ndimage.label(Z_poly_mask1)
 
 # smart_segm_ps, smart_segm_closed_ps, peaks_ps = ia.hist_segm_auto(Z_photoshop, 0.1, 200, .95) #gives both cleaned and non-cleaned mask)
 # Z_ps_mask1 = np.invert(smart_segm_ps) #method produces negative mask; invert
@@ -157,19 +149,19 @@ label_Z_poly, nb_labels = ndimage.label(Z_poly_mask1)
 #
 #
 #Segmentation based on features
-image_segm_size, image_segm_low_size, image_segm_high_size, image_segm_under, image_segm_over = ia.\
-    feature_segm(Z_poly1_corr, Z_poly_mask1, 'size', factor=1)
-plot.sky_plot(image_segm_size, "size segmented, desired")
-plot.sky_plot(image_segm_low_size, "size segmented, low")
-plot.sky_plot(image_segm_over, "size segmented, over")
-plot.sky_plot(image_segm_under, "size segmented, under")
+# image_segm_size, image_segm_low_size, image_segm_high_size, image_segm_under, image_segm_over = ia.\
+#     feature_segm(Z_poly1_corr, Z_poly_mask1, 'size', factor=1)
+# plot.sky_plot(image_segm_size, "size segmented, desired")
+# plot.sky_plot(image_segm_low_size, "size segmented, low")
+# plot.sky_plot(image_segm_over, "size segmented, over")
+# plot.sky_plot(image_segm_under, "size segmented, under")
 
 #
-factor1 = 1
-image_segm_mean_val, image_segm_mean_val_low, image_segm_mean_val_high, image_segm_under, image_segm_over = ia.\
-    feature_segm(image_segm_size, Z_poly_mask1, 'mean value', factor1)
-#Plot().im_plot(image_segm_mean_val_low, "mean value segmented, low")
-plot.sky_plot(image_segm_mean_val, "mean value segmented, desired")
+# factor1 = 1
+# image_segm_mean_val, image_segm_mean_val_low, image_segm_mean_val_high, image_segm_under, image_segm_over = ia.\
+#     feature_segm(image_segm_size, Z_poly_mask1, 'mean value', factor1)
+#plot.im_plot(image_segm_mean_val_low, "mean value segmented, low")
+#plot.sky_plot(image_segm_mean_val, "mean value segmented, desired")
 #plot.sky_plot(image_segm_under, "mean value segmented, under")
 #plot.sky_plot(image_segm_mean_val_high, "mean value segmented, high")
 
