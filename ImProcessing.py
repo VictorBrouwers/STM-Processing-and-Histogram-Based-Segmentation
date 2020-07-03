@@ -65,7 +65,7 @@ class ImageProcessing(object):
             C, _, _, _ = scipy.linalg.lstsq(A, data_re)  # coefficients
             print("1: ", C.shape, A.shape)
 
-            # or expressed using matrix/vector product
+            # create the first order plane on a grid
             Z = np.dot(np.c_[XX, YY, np.ones(XX.shape)], C).reshape(X.shape)
 
         elif order == 2:
@@ -74,7 +74,7 @@ class ImageProcessing(object):
             C, _, _, _ = scipy.linalg.lstsq(A, data_re) #coefficients
             print("2: ",C.shape, A.shape)
 
-            # evaluate it on a grid
+            # create the second order plane on a grid
             Z = np.dot(np.c_[np.ones(XX.shape), XX, YY, XX * YY, XX ** 2, YY ** 2], C).reshape(X.shape)
 
         Z_sub = data - Z
