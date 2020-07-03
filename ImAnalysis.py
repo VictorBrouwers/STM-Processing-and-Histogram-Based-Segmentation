@@ -16,7 +16,7 @@ plot = Plots.Plot()
 #This class contains methods for (processed) image analysis
 class ImageAnalysis:
     # segments data by using a histogram, requires manual estimation of values based on histogram.
-    # requires and ndarray (data)
+    # requires and ndarray (data) and a string to indicate the data-type (type)
     # outputs ndarrays (all_segments, all_segments_cleaned) and masks (segmx_closed)
     # SOURCE: (https://github.com/bnsreenu/python_for_microscopists/blob/master/023-histogram_segmentation_using_scikit_image.py)
     def hist_segm_man(self, data, type):
@@ -100,8 +100,8 @@ class ImageAnalysis:
         return all_segments, all_segments_cleaned, segm1_closed, segm2_closed, segm3_closed, segm3 #TODO; put closed segments in object
 
     #Automatically segments data using a histogram. Paramaters are globally defined.
-    #Requires an ndarray (data)
-    #Outputs masks and ndarray (smart_segm, smart_segm_closed) and list with minima and maxima (peaks)
+    #Requires an ndarray (data), a decimal number (thr_perc), an integer (autobins) and a decimal number (fraction)
+    #Outputs masks and ndarray (smart_segm, smart_segm_closed, etc.)
     def hist_segm_auto(self, data, thr_perc, autobins, fraction):
         # Data parameters
         nx = data.shape[0]
@@ -323,7 +323,7 @@ class ImageAnalysis:
 
     #Creates an array with data of specific feature, indicated by the segment mask
     #Requires ndarray (data), a label of this data (label_data) and an masked ndarry (segm_mask)
-    #Outpus the original data, only with the mask data in it TODO: make independent of slices
+    #Outputs the original data, only with the mask data in it TODO: make independent of slices
     def im_segm(self, data, label_data, segm_mask):
         nx = data.shape[0]
         ny = data.shape[1]
